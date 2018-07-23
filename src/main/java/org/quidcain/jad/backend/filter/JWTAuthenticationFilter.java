@@ -3,11 +3,11 @@ package org.quidcain.jad.backend.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.quidcain.jad.backend.model.User;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -33,8 +33,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest req,
                                                 HttpServletResponse res) throws AuthenticationException {
         try {
-            User user = new ObjectMapper()
-                    .readValue(req.getInputStream(), User.class);
+            org.quidcain.jad.backend.model.User user = new ObjectMapper()
+                    .readValue(req.getInputStream(), org.quidcain.jad.backend.model.User.class);
 
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
