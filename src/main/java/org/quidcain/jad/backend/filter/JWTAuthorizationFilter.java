@@ -1,6 +1,7 @@
 package org.quidcain.jad.backend.filter;
 
 import io.jsonwebtoken.Jwts;
+import org.quidcain.jad.backend.config.JWTConfig;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
@@ -13,11 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collections;
 
-import static org.quidcain.jad.backend.filter.JWTAuthenticationFilter.HEADER_STRING;
-import static org.quidcain.jad.backend.filter.JWTAuthenticationFilter.SECRET;
-import static org.quidcain.jad.backend.filter.JWTAuthenticationFilter.TOKEN_PREFIX;
-
 public class JWTAuthorizationFilter extends GenericFilterBean {
+    private JWTConfig jwtConfig;
+
+    public JWTAuthorizationFilter(JWTConfig jwtConfig) {
+        this.jwtConfig = jwtConfig;
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -27,11 +29,11 @@ public class JWTAuthorizationFilter extends GenericFilterBean {
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = request.getHeader(HEADER_STRING);
+        String token = request.getHeader(jwtConfig.getHeaderString());
         if (token != null) {
             String user = Jwts.parser()
-                    .setSigningKey(SECRET.getBytes())
-                    .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+                    .setSigningKey(jwtConfig.getSecret().getBytes())
+                    .parseClaimsJws(token.replace(jwtConfig.getTokenPrefix(), ""))
                     .getBody()
                     .getSubject();
             if (user != null) {

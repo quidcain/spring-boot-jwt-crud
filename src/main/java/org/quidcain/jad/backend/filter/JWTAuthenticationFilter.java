@@ -3,6 +3,7 @@ package org.quidcain.jad.backend.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.quidcain.jad.backend.config.JWTConfig;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,16 +20,13 @@ import java.util.Collections;
 import java.util.Date;
 
 public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-    public static final long EXPIRATION_TIME = 864_000_000; // 10 days
-    public static final String SECRET = "MySecret";
-    public static final String TOKEN_PREFIX = "Bearer ";
-    public static final String HEADER_STRING = "Authorization";
-
+    private JWTConfig jwtConfig;
     private AuthenticationManager authenticationManager;
 
-    public JWTAuthenticationFilter(String url, AuthenticationManager authenticationManager) {
+    public JWTAuthenticationFilter(String url, JWTConfig jwtConfig, AuthenticationManager authenticationManager) {
         super(new AntPathRequestMatcher(url));
         this.authenticationManager = authenticationManager;
+        this.jwtConfig = jwtConfig;
     }
 
     @Override
@@ -51,9 +49,9 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
         String token = Jwts.builder()
                 .setSubject(((User) auth.getPrincipal()).getUsername())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getExpiration()))
+                .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret().getBytes())
                 .compact();
-        res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+        res.addHeader(jwtConfig.getHeaderString(), jwtConfig.getTokenPrefix() + token);
     }
 }

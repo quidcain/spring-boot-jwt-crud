@@ -16,10 +16,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private JWTConfig jwtConfig;
 
-    public WebSecurityConfig(UserDetailsService userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public WebSecurityConfig(UserDetailsService userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder,
+                             JWTConfig jwtConfig) {
         this.userDetailsService = userDetailsService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.jwtConfig = jwtConfig;
     }
 
     @Override
@@ -30,9 +33,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST,"/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
-            .addFilterBefore(new JWTAuthenticationFilter("/login", authenticationManager()),
+            .addFilterBefore(new JWTAuthenticationFilter("/login", jwtConfig, authenticationManager()),
                     UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new JWTAuthorizationFilter(jwtConfig), UsernamePasswordAuthenticationFilter.class)
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
