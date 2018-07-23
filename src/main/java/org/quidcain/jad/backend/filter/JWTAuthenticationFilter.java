@@ -8,7 +8,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +18,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 
-public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     static final long EXPIRATION_TIME = 864_000_000; // 10 days
     static final String SECRET = "MySecret";
     static final String TOKEN_PREFIX = "Bearer ";
@@ -25,26 +26,21 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private AuthenticationManager authenticationManager;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public JWTAuthenticationFilter(String url, AuthenticationManager authenticationManager) {
+        super(new AntPathRequestMatcher(url));
         this.authenticationManager = authenticationManager;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req,
-                                                HttpServletResponse res) throws AuthenticationException {
-        try {
+                                                HttpServletResponse res) throws AuthenticationException, IOException {
             org.quidcain.jad.backend.model.User user = new ObjectMapper()
                     .readValue(req.getInputStream(), org.quidcain.jad.backend.model.User.class);
-
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             user.getUsername(),
                             user.getPassword(),
-                            Collections.emptyList())
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+                            Collections.emptyList()));
     }
 
     @Override
