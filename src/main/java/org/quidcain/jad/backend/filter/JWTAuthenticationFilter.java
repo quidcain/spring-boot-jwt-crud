@@ -32,13 +32,13 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req,
                                                 HttpServletResponse res) throws AuthenticationException, IOException {
-            org.quidcain.jad.backend.model.User user = new ObjectMapper()
-                    .readValue(req.getInputStream(), org.quidcain.jad.backend.model.User.class);
-            return authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            user.getUsername(),
-                            user.getPassword(),
-                            Collections.emptyList()));
+        org.quidcain.jad.backend.model.User user = new ObjectMapper()
+                .readValue(req.getInputStream(), org.quidcain.jad.backend.model.User.class);
+        return authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        user.getUsername(),
+                        user.getPassword(),
+                        Collections.emptyList()));
     }
 
     @Override
