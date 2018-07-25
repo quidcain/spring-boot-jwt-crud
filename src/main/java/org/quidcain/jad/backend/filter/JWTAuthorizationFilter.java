@@ -1,9 +1,9 @@
 package org.quidcain.jad.backend.filter;
 
-import io.jsonwebtoken.Jwts;
-import org.quidcain.jad.backend.config.JWTConfig;
+import org.quidcain.jad.backend.util.JWTUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -14,11 +14,15 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collections;
 
-public class JWTAuthorizationFilter extends GenericFilterBean {
-    private JWTConfig jwtConfig;
+import static org.quidcain.jad.backend.constants.AuthConstants.AUTHORIZATION_HEADER;
+import static org.quidcain.jad.backend.constants.AuthConstants.TOKEN_PREFIX;
 
-    public JWTAuthorizationFilter(JWTConfig jwtConfig) {
-        this.jwtConfig = jwtConfig;
+@Component
+public class JWTAuthorizationFilter extends GenericFilterBean {
+    private JWTUtils jwtUtils;
+
+    public JWTAuthorizationFilter(JWTUtils jwtUtils) {
+        this.jwtUtils = jwtUtils;
     }
 
     @Override
@@ -29,15 +33,12 @@ public class JWTAuthorizationFilter extends GenericFilterBean {
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = request.getHeader(jwtConfig.getHeaderString());
-        if (token != null) {
-            String user = Jwts.parser()
-                    .setSigningKey(jwtConfig.getSecret().getBytes())
-                    .parseClaimsJws(token.replace(jwtConfig.getTokenPrefix(), ""))
-                    .getBody()
-                    .getSubject();
-            if (user != null) {
-                return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
+        String tokenHeader = request.getHeader(AUTHORIZATION_HEADER);
+        if (tokenHeader != null) {
+            String token = tokenHeader.replace(TOKEN_PREFIX, "");
+            String username = jwtUtils.extractUsernameFromToken(token);
+            if (username != null) {
+                return new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
             }
             return null;
         }
