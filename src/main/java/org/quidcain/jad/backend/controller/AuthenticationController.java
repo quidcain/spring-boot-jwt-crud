@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.quidcain.jad.backend.constants.AuthConstants.TOKEN_PAYLOAD_PROPERTY;
-import static org.quidcain.jad.backend.constants.AuthConstants.TOKEN_PREFIX;
+import static org.quidcain.jad.backend.constants.AuthConstants.*;
 
 @RestController
 public class AuthenticationController {
@@ -40,17 +39,25 @@ public class AuthenticationController {
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    protected ResponseEntity<String> unsuccessfulAuthentication(AuthenticationException e) {
+    protected ResponseEntity<Map<String, ?>> unsuccessfulAuthentication(AuthenticationException e) {
         SecurityContextHolder.clearContext();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        return ResponseEntity.status(status).body(generateUnsuccessfulPayload(status, e.getMessage()));
+    }
+
+    protected Map<String, ?> generateUnsuccessfulPayload(HttpStatus status, String message) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(STATUS_PAYLOAD_PROPERTY, status.value());
+        payload.put(ERROR_PAYLOAD_PROPERTY, message);
+        return payload;
     }
 
     protected Map<String, String> successfulAuthentication(Authentication auth) {
         String token = jwtUtils.generateToken(((UserDetails) auth.getPrincipal()).getUsername());
-        return generatePayload(token);
+        return generateSuccessfulPayload(token);
     }
 
-    protected Map<String, String> generatePayload(String token) {
+    protected Map<String, String> generateSuccessfulPayload(String token) {
         Map<String,String> payload = new HashMap<>();
         payload.put(TOKEN_PAYLOAD_PROPERTY, TOKEN_PREFIX + token);
         return payload;
