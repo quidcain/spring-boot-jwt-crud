@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 public class JWTConfig {
     private static final String TOKEN_PREFIX = "Bearer ";
     private static final String HEADER_STRING = "Authorization";
+    private static final String TOKEN_PAYLOAD_PROPERTY = "token";
 
     @Value("${jwt.expiration}")
     private long expiration;
@@ -14,6 +15,7 @@ public class JWTConfig {
     private String secret;
     private String tokenPrefix = TOKEN_PREFIX;
     private String headerString = HEADER_STRING;
+    private String tokenPayloadProperty = TOKEN_PAYLOAD_PROPERTY;
 
     public long getExpiration() {
         return expiration;
@@ -45,5 +47,13 @@ public class JWTConfig {
 
     public void setHeaderString(String headerString) {
         this.headerString = headerString;
+    }
+
+    public String getTokenPayloadProperty() {
+        return tokenPayloadProperty;
+    }
+
+    public void setTokenPayloadProperty(String tokenPayloadProperty) {
+        this.tokenPayloadProperty = tokenPayloadProperty;
     }
 }

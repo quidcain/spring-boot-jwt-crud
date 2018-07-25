@@ -16,8 +16,11 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     private JWTConfig jwtConfig;
@@ -45,13 +48,22 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
     protected void successfulAuthentication(HttpServletRequest req,
                                             HttpServletResponse res,
                                             FilterChain chain,
-                                            Authentication auth) {
-
+                                            Authentication auth) throws IOException {
         String token = Jwts.builder()
                 .setSubject(((User) auth.getPrincipal()).getUsername())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getExpiration()))
                 .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret().getBytes())
                 .compact();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String,String> payload = new HashMap<>();
+        payload.put(jwtConfig.getTokenPayloadProperty(), jwtConfig.getTokenPrefix() + token);
+        String json = objectMapper.writeValueAsString(payload);
         res.addHeader(jwtConfig.getHeaderString(), jwtConfig.getTokenPrefix() + token);
+        res.setContentType("application/json");
+        res.setCharacterEncoding("UTF-8");
+        PrintWriter writer = res.getWriter();
+        writer.write(json);
+        writer.flush();
+        writer.close();
     }
 }
