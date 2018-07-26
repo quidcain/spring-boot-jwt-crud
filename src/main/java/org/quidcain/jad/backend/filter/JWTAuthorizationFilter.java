@@ -14,8 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collections;
 
-import static org.quidcain.jad.backend.constants.AuthConstants.AUTHORIZATION_HEADER;
-import static org.quidcain.jad.backend.constants.AuthConstants.TOKEN_PREFIX;
+import static org.quidcain.jad.backend.constants.ApiConstants.AUTHORIZATION_HEADER;
+import static org.quidcain.jad.backend.constants.ApiConstants.TOKEN_PREFIX;
 
 @Component
 public class JWTAuthorizationFilter extends GenericFilterBean {

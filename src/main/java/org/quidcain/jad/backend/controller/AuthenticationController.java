@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.quidcain.jad.backend.constants.AuthConstants.*;
+import static org.quidcain.jad.backend.constants.ApiConstants.*;
 
 @RestController
 public class AuthenticationController {
@@ -48,7 +48,7 @@ public class AuthenticationController {
     protected Map<String, ?> generateUnsuccessfulPayload(HttpStatus status, String message) {
         Map<String, Object> payload = new HashMap<>();
         payload.put(STATUS_PAYLOAD_PROPERTY, status.value());
-        payload.put(ERROR_PAYLOAD_PROPERTY, message);
+        payload.put(MESSAGE_PAYLOAD_PROPERTY, message);
         return payload;
     }
 
