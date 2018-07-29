@@ -52,7 +52,7 @@ public class SampleController {
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Sample sample) {
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody Sample sample) {
         sample.setId(id);
         sampleRepository.save(sample);
         return new ResponseEntity<>(HttpStatus.OK);
