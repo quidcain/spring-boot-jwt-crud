@@ -17,7 +17,7 @@ import static org.quidcain.jad.backend.constants.ApiConstants.*;
 import static org.quidcain.jad.backend.constants.ApiConstants.MESSAGE_PAYLOAD_PROPERTY;
 
 @RestController
-@RequestMapping("/sample")
+@RequestMapping("/samples")
 public class SampleController {
     private SampleRepository sampleRepository;
 
