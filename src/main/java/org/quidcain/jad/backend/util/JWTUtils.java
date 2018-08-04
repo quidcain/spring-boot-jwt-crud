@@ -1,7 +1,6 @@
 package org.quidcain.jad.backend.util;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -19,11 +18,15 @@ public class JWTUtils {
     }
 
     public String extractUsernameFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(secret.getBytes())
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(secret.getBytes())
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (MalformedJwtException | ExpiredJwtException e) {
+            return null;
+        }
     }
 
     public String generateToken(String subject) {
